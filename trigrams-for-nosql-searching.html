@@ -48,12 +48,12 @@
 			<div style="border: 4px solid #ccc; border-radius: 1rem; padding: 1rem 1rem 2rem 1rem; margin-top: 1rem;">
 				<h3 style="margin: 0">Real-time search demo</h3>
 				<p>
-					In the search box below you can type "lor", and it will do a real-time search:
+					In the search box below you can type "lor", and it will do a real-time full-text (trigram) search:
 				</p>
 				<input
 					style="font-size: 1.5rem; border: 3px solid #888; border-radius: 0.5rem; padding: 0.33rem 0.66rem;"
 					type="text" id="searchText" placeholder="Search">
-				<div id="result"></div>
+				<div id="result" style="cursor: pointer"></div>
 				<span style="font-size: 0.7rem; margin-top: 0.5rem">Try
 					<a href="#" onclick="searchText('dummy');">dummy</a>,
 					<a href="#" onclick="searchText('lorem');">lorem</a>,
@@ -77,14 +77,14 @@
 		It would be a good idea to create extra functionality such as:
 	</p>
 	<ul>
-		<li>A front-end network retry strategy, for when thengs are flaky so we're not just relying on our NoSQL
-			database client</li>
+		<li>A scoring system to order the results, eg: searching for "hot pot" may return both "hot pot" and "the
+			pot is hot", the first result is likley a better match as the words appear closer to eachother</li>
 		<li>Ability to cache some reasults in the client, for example when the user edits their search text, we can
 			simply show the cached version</li>
 		<li>Ability to filter, sort and pass in <a rel="noopener noreferrer" target="_blank"
 				href="https://en.wikipedia.org/wiki/Faceted_search">facets</a> for the search query</li>
 		<li>Apply <a rel="noopener noreferrer" target="_blank"
-				href="https://en.wikipedia.org/wiki/Stemming">Stemming</a> to the search tragram index</li>
+				href="https://en.wikipedia.org/wiki/Stemming">Stemming</a> to the search trigram index</li>
 	</ul>
 
 	<script type="text/javascript" id="theCode">
@@ -96,9 +96,9 @@
 				var result = {}
 				for (var i = 0; i <= str.length - 3; i += 1) {
 					var bit = str.substr(i, 3).toLowerCase()
-					if (/^[a-z0-9]*$/.test(bit)) {	//	For our example: only chars and numbers
-						result[bit] = true
-					}
+					// if (/^[a-z0-9]*$/.test(bit)) {	//	For our example: only chars and numbers
+					result[bit] = true
+					// }
 				}
 				return result
 			},
@@ -119,7 +119,7 @@
 				var triResult = Object.entries(TriSearch.triIndexes).filter(([entryStr, entTrigrams]) => {
 					return searchTrigrams.length && searchTrigrams.every(st => entTrigrams.includes(st))
 				})
-				//	Now find where the full search term matches in the strings (if at all), this code would run on the frontend
+				//	Now find where the full search term matches in the strings (if at all), this code would only run on the frontend
 				var indexResult = {}
 				var fullSearchTerm = str.toLowerCase()
 				triResult.forEach(([entryStr, entTrigrams]) => {
@@ -187,7 +187,7 @@
 				resultText += `<li>No result for <pre style="display: inline">${searchString}</pre>${searchString.length < 3 ? ' (need at least 3 characters)' : ''}</li>`
 			} else {
 				resultText += '<li style="font-weight: bold; font-size: 1.5rem; padding-bottom: 0.5rem;">RESULTS:</li>'
-				resultText += searchResult.map(([str, pos]) => `<li>${str.substring(0, pos.start)}<span style="background: yellow">${str.substring(pos.start, pos.end)}</span>${str.substring(pos.end)}</li>`).join('<br/>')
+				resultText += searchResult.map(([str, pos]) => `<li style="padding: 0.5rem;" onmouseover="this.style.backgroundColor = \'#eee\'" onmouseout="this.style.backgroundColor = \'\'">${str.substring(0, pos.start)}<span style="background: yellow">${str.substring(pos.start, pos.end)}</span>${str.substring(pos.end)}</li>`).join('\n')
 			}
 
 			resultText += '</ul>'
