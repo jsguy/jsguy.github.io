@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width">
+	<style>
+		html {
+			font-family: sans-serif;
+		}
+
+		body {
+			margin: 1rem;
+		}
+	</style>
+	<script>
+		searchText = (str) => {
+			document.getElementById('searchText').value = str;
+			performSearch(str);
+		}
+	</script>
+</head>
+
+<body>
+	<h1>Real-time search in NoSQL databases using trigrams</h1>
+	<div>
+		<div style="display: flex; flex-direction: column">
+			<p>
+				This is demo code to show how we might implement a real-time free-text search on a NoSQL database - this
+				is potentially without needing to use a lambda function for the search itself. Note: The demo code here
+				is font-end only, ie: no server implementation to create the trigrams, however as you can see in the
+				demo code, it is fairly trivial.
+				For example, here's how it might work for Firebase's excellent Firestore NoSQL database:
+			</p>
+			<ul>
+				<li>We create a <a rel="noopener noreferrer" target="_blank"
+						href="https://firebase.blog/posts/2019/06/understanding-collection-group-queries">`collection
+						group`</a> on searchable documents (name it: `trigramsearch`), and create an array of
+					trigrams for the searchable field value</li>
+				<li>From the frontend, you'd query on the `trigramsearch` collection group, using <a
+						rel="noopener noreferrer" target="_blank"
+						href="https://firebase.google.com/docs/firestore/query-data/queries#array_membership">`array-contains`</a>
+				</li>
+				<li>Results come back with matches for exactly the first 3 characters of your search string</li>
+				<li>You can now analyse results on the frontend, for example to highlight what matched in the search
+				</li>
+			</ul>
+			<div style="border: 4px solid #ccc; border-radius: 1rem; padding: 1rem 1rem 2rem 1rem; margin-top: 1rem;">
+				<h3 style="margin: 0">Real-time search demo</h3>
+				<p>
+					In the search box below you can type "lor", and it will do a real-time search:
+				</p>
+				<input
+					style="font-size: 1.5rem; border: 3px solid #888; border-radius: 0.5rem; padding: 0.33rem 0.66rem;"
+					type="text" id="searchText" placeholder="Search">
+				<div id="result"></div>
+				<span style="font-size: 0.7rem; margin-top: 0.5rem">Try
+					<a href="#" onclick="searchText('dummy');">dummy</a>,
+					<a href="#" onclick="searchText('lorem');">lorem</a>,
+					<a href="#" onclick="searchText('goes');">goes</a>
+					Also try
+					<a href="#" onclick="searchText('lorem gonna');">lorem gonna</a>
+					<a href="#" onclick="searchText('text and');">text and</a>
+					And then try
+					<a href="#" onclick="searchText('text that');">text that</a> and
+					<a href="#" onclick='searchText("\"text that\"")'>"text that"</a>
+				</span>
+			</div>
+		</div>
+	</div>
+	<h2>Data from our example search</h2>
+	<div id="data" style="border: 1px solid #ccc; border-radius: 1rem; padding: 0 1rem 1rem;"></div>
+	<h2>Code from our example search functionality</h2>
+	<div id="codeBox" style="border: 1px solid #ccc; border-radius: 1rem; padding: 0 1rem;"></div>
+	<h2>Further considerations</h2>
+	<p>
+		It would be a good idea to create extra functionality such as:
+	</p>
+	<ul>
+		<li>A front-end network retry strategy, for when thengs are flaky so we're not just relying on our NoSQL
+			database client</li>
+		<li>Ability to cache some reasults in the client, for example when the user edits their search text, we can
+			simply show the cached version</li>
+		<li>Ability to filter, sort and pass in <a rel="noopener noreferrer" target="_blank"
+				href="https://en.wikipedia.org/wiki/Faceted_search">facets</a> for the search query</li>
+		<li>Apply <a rel="noopener noreferrer" target="_blank"
+				href="https://en.wikipedia.org/wiki/Stemming">Stemming</a> to the search tragram index</li>
+	</ul>
+
+	<script type="text/javascript" id="theCode">
+		//	Basic code for indexing and searching
+		const TriSearch = {
+			triIndexes: {},
+			//	Basic trigram indexing - this would be created on save in the noSQL database
+			trigrams: (str) => {
+				var result = {}
+				for (var i = 0; i <= str.length - 3; i += 1) {
+					var bit = str.substr(i, 3).toLowerCase()
+					if (/^[a-z0-9]*$/.test(bit)) {	//	For our example: only chars and numbers
+						result[bit] = true
+					}
+				}
+				return result
+			},
+			index: (str) => {
+				var result = TriSearch.trigrams(str)
+				TriSearch.triIndexes[str] = Object.keys(result)
+			},
+			//	This search kind of simulates using array-contains (or array-contains-any) in firebase to find matches
+			search: (str) => {
+				var termsRegex = new RegExp(/"((?:[^"])*)"|\w+/g)
+				var searchTerms = []
+				while (match = termsRegex.exec(str)) {
+					searchTerms.push(match[1] || match[0])
+				}
+
+				const searchTrigrams = Object.keys(searchTerms.map(TriSearch.trigrams).reduce((map, trigrams) => ({ ...map, ...trigrams }), {}))
+				//	First find any indexed string that has all the serch trigrams
+				var triResult = Object.entries(TriSearch.triIndexes).filter(([entryStr, entTrigrams]) => {
+					return searchTrigrams.length && searchTrigrams.every(st => entTrigrams.includes(st))
+				})
+				//	Now find where the full search term matches in the strings (if at all), this code would run on the frontend
+				var indexResult = {}
+				var fullSearchTerm = str.toLowerCase()
+				triResult.forEach(([entryStr, entTrigrams]) => {
+					searchTrigrams.forEach(tri => {
+						var index = entryStr.toLowerCase().indexOf(tri)
+						indexResult[entryStr] = {
+							// kind of find the first part of the string containing all the trigrams
+							start: !indexResult[entryStr] ? index : Math.min(indexResult[entryStr].start, index),
+							end: !indexResult[entryStr] ? index + 3 : (Math.max(indexResult[entryStr].end, index + 3))
+						}
+					})
+				})
+
+				//	Final result gives matches and where the term matches.
+				return indexResult || null
+			}
+		}
+
+	</script>
+	<script type="text/javascript">
+
+		var input = [
+			"Never gonna give you lorem",
+			"Never gonna take their lorem",
+			"some dummy dummy dummy text",
+			"Dummy text goes here",
+			"Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+			"Lorem Ipsum has been the industry's standard dummy text ever since the 1500s",
+			"With desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.",
+			"some text that has that",
+			"a text which is missing exactly that"
+		]
+
+		//	Index the strings
+		input.forEach(inp => TriSearch.index(inp))
+
+		var dataBox = document.getElementById("data");
+		var codeBox = document.getElementById('codeBox')
+		var searchBox = document.getElementById("searchText");
+		var resultBox = document.getElementById("result");
+
+		dataBox.innerHTML = `
+			<h2>Input data</h2>
+			<pre><code>${JSON.stringify(input, null, 4)}</code></pre>
+			<h2>Trigram search data</h2>
+			<pre><code id="trigramData" style="display: block; height: 26rem; overflow: hidden;">${JSON.stringify(TriSearch.triIndexes, null, 4)}</code></pre>
+			<a href="#" onclick="document.getElementById('trigramData').style = '';">Show all data</a>
+		`
+
+		const undent = (str) => str.split('\n\t\t').join('\n')
+
+		codeBox.innerHTML = `<pre><code>${undent(document.getElementById('theCode').innerText)}</code></pre>`
+
+		var performSearch = function () {
+			var searchString = searchBox.value;
+
+			if (!searchString) {
+				resultBox.innerHTML = ''
+				return
+			}
+
+			var searchResult = Object.entries(TriSearch.search(searchString) || {})
+			var resultText = '<ul style="list-style-type: none; border: 1px solid #ccc; border-radius: 0.5rem; padding-inline-start: 0; padding: 1rem;">'
+			if (searchResult.length === 0) {
+				resultText += `<li>No result for <pre style="display: inline">${searchString}</pre>${searchString.length < 3 ? ' (need at least 3 characters)' : ''}</li>`
+			} else {
+				resultText += '<li style="font-weight: bold; font-size: 1.5rem; padding-bottom: 0.5rem;">RESULTS:</li>'
+				resultText += searchResult.map(([str, pos]) => `<li>${str.substring(0, pos.start)}<span style="background: yellow">${str.substring(pos.start, pos.end)}</span>${str.substring(pos.end)}</li>`).join('<br/>')
+			}
+
+			resultText += '</ul>'
+
+			resultBox.innerHTML = resultText;
+		}
+
+		searchBox.onkeyup = performSearch;
+	</script>
+</body>
+
+</html>
