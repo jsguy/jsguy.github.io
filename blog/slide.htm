@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Jsguy's blog slideshow thingy</title>
+
+	<!-- Lightweight styling -->
+	<link rel="stylesheet" href="//cdn.rawgit.com/necolas/normalize.css/master/normalize.css">
+
+	<!-- Marked, Mithril and plugins / utils -->
+	<script src="js/marked-0.3.6.js"></script>
+	<script src="js/mithril-1.0.1.js"></script>
+	<script src="js/mithril.bindings.js"></script>
+
+	<script type="text/javascript" src="js/ulib.url.js"></script>
+	<script type="text/javascript" src="js/ulib.ajax.js"></script>
+	<script type="text/javascript" src="js/ulib.loadscript.js"></script>
+	<script type="text/javascript" src="js/ulib.loadandcallback.js"></script>
+
+	<script type="text/javascript" src="js/mithril.markdown.js"></script>
+</head>
+<body>
+	<div class="reveal">
+		<div class="slides" id="target"></div>
+	</div>
+
+	<link rel="stylesheet" href="//fonts.googleapis.com/css?family=Roboto:300,300italic,700,700italic">
+
+	<!-- Setup reveal -->
+	<link rel="stylesheet" href="js/reveal/css/reveal.css">
+    <link rel="stylesheet" href="js/reveal/css/theme/black.css" id="theme">
+	<script src="js/reveal/lib/js/head.min.js"></script>
+	<script src="js/reveal/js/reveal.js"></script>
+
+	<script>
+		var params = ulib.url().params,
+			file;
+		//	We have /FILENAME
+		for(var i in params) {
+			if(params[i] ==  undefined) {
+				file = i;
+			}
+		}
+
+		//	Load our page
+		ulib.ajax({
+			//url: "pages/test.md",
+			url: "pages/"+file+".md",
+			processResponse: false,
+			success: function(markdown){
+				var el = document.getElementById('target'),
+					//	Make sure only the sideshow bits are used
+					rev = {
+						start: "[//]: # (Reveal: Start)",
+						end: "[//]: # (Reveal: End)"
+					},
+					md = {
+						start: "~~$$reveal:start$$~~",
+						end: "~~$$reveal:end$$~~"
+					},
+					tmpSlides = markdown.split(rev.start),
+					mySlides = [],
+					md;
+
+				for(var i = 1; i < tmpSlides.length; i += 1) {
+					mySlides.push(tmpSlides[i].split(rev.end)[0]);
+				}
+				myMd = md.start + "\n" + mySlides.join("\n"+md.end+"\n" + md.start) + "\n" + md.end;
+
+				el.innerHTML = marked(myMd, {
+					renderer: renderer
+				});
+
+				// Full list of configuration options available here:
+				// https://github.com/hakimel/reveal.js#configuration
+				Reveal.initialize({
+					controls: false,
+					progress: false,
+					history: true,
+					center: true,
+					// available themes are in /css/theme
+					theme: Reveal.getQueryHash().theme,
+					transition: Reveal.getQueryHash().transition || 'default'
+				});
+			}
+		});
+	</script>
+</body>
+</html>
