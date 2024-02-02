@@ -33,7 +33,7 @@ graph LR
 ```flow
 graph LR
 
-    A[Server] -- Chron jobFilter log --> B((Log storage))
+    A[Server] -- Cron to filter log --> B((Log storage))
     B -- Filtered data --> C((Log storage))
     D(Data process)
     D -- Result --> E{Complete}
