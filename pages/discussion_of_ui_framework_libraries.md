@@ -281,12 +281,14 @@ Here we compare:
 * Scope: Overall benefits of the framework/library, ie: how much of the stack does it take care of.
 * Market perception: How popular does this framework seem to be in the job-market, ie: how easily can you find developers?
 
+**Note:** The Scope scores are based on the personas that are mentioned at the start of this article, so **A**: Lone developer, **B**: Focused team,**C**: Broad-scoped team 
+
 |         | Components available | Scope                | Perception |
 |---------|----------------------|----------------------|------------|
-| Vue.js  |                    5 | **A**: 8, B: 7, C: 7 |          5 |
-| React   |               **10** | A: 6, B: 7, **C**: 9 |      **9** |
-| Angular |                    8 | A: 7, B: **8**, C: 8 |          8 |
-| Mithril |                    4 | A: **9**, B: 8, C: 7 |          1 |
+| Vue.js  |                    5 | **A: 8**, B: 7, C: 7 |          5 |
+| React   |               **10** | A: 6, B: 7, **C: 9** |      **9** |
+| Angular |                    8 | A: 7, **B: 8**, C: 8 |          8 |
+| Mithril |                    4 | **A: 9**, B: 8, C: 7 |          1 |
 
 So from a component and perception point of view, React is the most mature of the current crop of libraries and frameworks, and scope-wise it is also good, especially for Broad-scoped teams, mainly due to the testable nature of the library.
 
@@ -296,12 +298,15 @@ So from a component and perception point of view, React is the most mature of th
 
 Below is a table with scores out of 10 for each persona, based on [public opinion](https://www.quora.com/Which-should-I-learn-Mithril-Vue-or-Angular), [research](http://todomvc.com/), and of course what I feel is "about right" from personal experience.
 
+**Note:** The Scope scores are based on the personas that are mentioned at the start of this article, so **A**: Lone developer, **B**: Focused team,**C**: Broad-scoped team 
+
+
 |  			| Maintainable                                                    | Expressive           | Performant |
 |-----------|-----------------------------------------------------------------|----------------------|------------|
-| Vue.JS   	| 24 - A: 8, **B**: 9, C: 7                                       | 21 - A: 7, **B**: 7, C: 7 | 23 - A: 8, B: 8, C: 7 |
-| React   	| <font style="color:green">**28**</font> - A: 9, B: 9, **C**: 10 | 21 - A: 7, **B**: 8, C: 6 | <font style="color:green">**24**</font> - A: 8, B: 8, C: 8 |
-| Angular   | 27 - A: 8, B: 9, **C**: 10                                      | 15 - A: <font style="color:red">4\*</font>, B: 5, **C**: 6 | <font style="color:green">**24**</font> - A: 8, B: 8, C: 8 |
-| Mithril   | 24 - A: 8, **B**: 9, C: 7                                       | <font style="color:green">**24**</font> - **A**: 9, B: 8, C: 7 | 23 - A: 8, B: 8, C: 7 |
+| Vue.JS   	| 24 - A: 8, **B: 9**, C: 7                                       | 21 - A: 7, **B: 7**, C: 7 | 23 - A: 8, B: 8, C: 7 |
+| React   	| <font style="color:green">**28**</font> - A: 9, B: 9, **C: 10** | 21 - A: 7, **B: 8**, C: 6 | <font style="color:green">**24**</font> - A: 8, B: 8, C: 8 |
+| Angular   | 27 - A: 8, B: 9, **C: 10**                                      | 15 - A: <font style="color:red">4\*</font>, B: 5, **C: 6** | <font style="color:green">**24**</font> - A: 8, B: 8, C: 8 |
+| Mithril   | 24 - A: 8, **B: 9**, C: 7                                       | <font style="color:green">**24**</font> - **A: 9**, B: 8, C: 7 | 23 - A: 8, B: 8, C: 7 |
 
 **Note<font style="color:red">*</font> **: [Angular uses TypeScript](https://toddmotto.com/typescript-the-missing-introduction), which is very good for *broad* teams, especially for Maintainability, though it may not be so good for [Expressiveness](https://medium.com/javascript-scene/you-might-not-need-typescript-or-static-types-aa7cb670a77b#.uj9o94rm3), as it enforces type checking, etc.
 
