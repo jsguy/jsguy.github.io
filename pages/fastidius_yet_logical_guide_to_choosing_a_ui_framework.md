@@ -1,7 +1,7 @@
 # Choosing a web UI framework or library
 
 <p class="main-intro">
-There are numerous factors you need to consider when choosing a web UI framework or library - the foremost technical consideration is: do you need a framework, or would a library be a better fit for your needs? Here we examine some aspects that you'll need to consider when deciding on a framework or library.
+There are many factors you need to consider when choosing a web UI framework or library - the foremost technical consideration is: do you need a framework, or would a library be a better fit for your needs? Here we examine some aspects that you'll need to consider when deciding on a framework or library.
 </p>
 
 ![Fork](img/forkinroad.jpg#main-img)
