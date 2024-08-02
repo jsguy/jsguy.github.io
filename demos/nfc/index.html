@@ -1,67 +1,74 @@
-<p style="margin: 10px">
-	<button class="btn btn-lg btn-primary" onclick="readWriteNfc()">Test NFC Read/Write</button>
-</p>
+<!DOCTYPE html>
+<html lang="en">
 
-<pre id="log"></pre>
-
-<p style="margin: 10px"><small>Based on the code snippets from <a
-			href="https://w3c.github.io/web-nfc/#examples">specification draft</a>.</small>
-</p>
-
-<script>
-	function readWriteNfc() {
-		if ('nfc' in navigator) {
-			navigator.nfc.watch(function (message) {
-				consoleLog("NFC message received from URL " + message.url);
-				if (message.data[0].recordType === 'empty') {
-					navigator.nfc.push([{
-						url: message.url,
-						data: [{
-							recordType: "text",
-							data: 'Hello World'
-						}]
-					}]);
-				}
-				processMessage(message);
-			})
-				.then(() => consoleLog("Added a watch."))
-				.catch(err => consoleLog("Adding watch failed: " + err.name));
-		} else {
-			alert('NFC API not supported.');
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>NFC Reader Example</title>
+	<style>
+		body {
+			font-family: Arial, sans-serif;
+			display: flex;
+			justify-content: center;
+			align-items: center;
+			height: 100vh;
+			background-color: #f0f0f0;
 		}
-	}
 
-	function consoleLog(data) {
-		var logElement = document.getElementById('log');
-		logElement.innerHTML += '\n' + data;
-	}
+		#app {
+			text-align: center;
+			background: white;
+			padding: 2rem;
+			border-radius: 8px;
+			box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+		}
 
-	function processMessage(message) {
-		message.data.forEach(function (record) {
-			if (record.recordType == "string") {
-				consoleLog('Data is string: ' + record.data);
-			} else if (record.recordType == "json") {
-				processJSON(record.data);
-			} else if (record.recordType == "url") {
-				consoleLog("Data is URL: " + record.data);
-			} else if (record.recordType == "opaque" && record.mediaType == 'image/png') {
-				processPng(record.data);
-			};
-		});
-	}
+		#message {
+			margin-top: 1rem;
+			color: #333;
+		}
+	</style>
+</head>
 
-	function processPng(data) {
-		consoleLog("Known image/png data");
+<body>
+	<div id="app">
+		<h1>NFC Reader</h1>
+		<button id="readButton">Read NFC</button>
+		<div id="message"></div>
+	</div>
 
-		var img = document.createElement("img");
-		img.src = URL.createObjectURL(new Blob(data, 'image/png'));
-		img.onload = function () {
-			window.URL.revokeObjectURL(this.src);
-		};
-	};
+	<script>
+		const readButton = document.getElementById('readButton');
+		const messageDiv = document.getElementById('message');
 
-	function processJSON(data) {
-		var obj = JSON.parse(data);
-		consoleLog("JSON data: " + obj.myProperty.toString());
-	};
-</script>
+		async function readNFC() {
+			if ('NDEFReader' in window) {
+				try {
+					const ndef = new NDEFReader();
+					await ndef.scan();
+					messageDiv.textContent = 'Scan started successfully. Tap an NFC tag.';
+
+					ndef.onreading = event => {
+						const { message } = event;
+						for (const record of message.records) {
+							const textDecoder = new TextDecoder(record.encoding);
+							messageDiv.textContent = `Record type: ${record.recordType}, data: ${textDecoder.decode(record.data)}`;
+						}
+					};
+
+					ndef.onreadingerror = () => {
+						messageDiv.textContent = 'NFC reading failed. Please try again.';
+					};
+				} catch (error) {
+					messageDiv.textContent = `Error: ${error.message}`;
+				}
+			} else {
+				messageDiv.textContent = 'NFC not supported on this device.';
+			}
+		}
+
+		readButton.addEventListener('click', readNFC);
+	</script>
+</body>
+
+</html>
