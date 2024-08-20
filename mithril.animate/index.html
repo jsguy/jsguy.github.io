@@ -1,0 +1,577 @@
+<html>
+
+<head>
+	<title>Mithril.animate</title>
+	<!-- <script src="https://raw.githack.com/jsguy/mithril.animate/master/examples/mithril.js"></script> -->
+	<script src="./old-mithril.js"></script>
+	<script src="https://raw.githack.com/jsguy/mithril.animate/master/dist/mithril.animate.min.js"></script>
+	<script src="https://raw.githack.com/jsguy/mithril.animate/master/examples/all.example.js"></script>
+	<!--
+	<script src="../../mithril.animate/examples/mithril.js"></script>
+	<script src="../../mithril.bindings/dist/mithril.bindings.js"></script>
+	<script src="../../mithril.animate/src/mithril.animate.js"></script>
+	<script src="../../mithril.animate/src/mithril.animate.bindings.js"></script>
+	<script src="../../mithril.animate/examples/all.example.js"></script>
+-->
+
+	<link rel="stylesheet" type="text/css" href="css/style.css">
+	<link rel="stylesheet" type="text/css" href="css/swingacat.css">
+	<!-- Hotjar Tracking Code for http://jsguy.com -->
+	<script>
+		(function (h, o, t, j, a, r) {
+			h.hj = h.hj || function () { (h.hj.q = h.hj.q || []).push(arguments) };
+			h._hjSettings = { hjid: 274942, hjsv: 5 };
+			a = o.getElementsByTagName('head')[0];
+			r = o.createElement('script'); r.async = 1;
+			r.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
+			a.appendChild(r);
+		})(window, document, '//static.hotjar.com/c/hotjar-', '.js?sv=');
+	</script>
+</head>
+
+<body>
+	<div id="promo">
+		<div id="promoText"></div>
+	</div>
+	<script>
+		//	A basic animation binder
+		var aniPromo = function (prop, delay) {
+			return function (el) {
+				setTimeout(function () {
+					var value = prop() ? 1 : 0;
+					m.animateProperties(el, {
+						scale: (value * 10) + 1,
+						opacity: 1 - value,
+						duration: "0.25s"
+					});
+				}, delay * 100);
+			};
+		};
+		//	Basic animation component
+		var promoApp = {
+			model: function () {
+				this.text = m.p("DECLARATIVELY BIND ANIMATIONS");
+				this.ani = m.p(0);
+			},
+			controller: function () {
+				var self = this;
+				self.model = new promoApp.model();
+				//	TODO: rewrite this to be a custom dynamic keyframe animation
+				setTimeout(function () {
+					self.model.ani(1);
+					m.redraw();
+				}, 5000);
+
+				setTimeout(function () {
+					//self.model.text("m(\"div\", { config: ani.fade(o.myProperty) })");
+
+					self.model.text("m.e(\"div\", { opacity: o.myProperty })");
+
+					self.model.ani(0);
+					m.redraw();
+				}, 9000);
+
+				setTimeout(function () {
+					self.model.ani(1);
+					m.redraw();
+				}, 15000);
+
+				setTimeout(function () {
+					self.model.text("Mithril.animate - fast, smooth, easy!");
+					self.model.ani(0);
+					m.redraw();
+				}, 19000);
+			},
+			view: function (c) {
+				var o = c.model;
+				return m("div", [
+					o.text().split("").map(function (t, i) {
+						t = (t == " ") ? "&nbsp;" : t;
+						return m("span", { config: aniPromo(o.ani, i) }, m.trust(t));
+					})
+				]);
+			}
+		};
+		//initialize
+		m.module(document.getElementById('promoText'), promoApp);
+	</script>
+
+	<header>
+		<div id="headerContainer">
+			<span id="logo"></span>
+			<span id="nav">
+				<a href="https://github.com/jsguy/mithril.animate/">GITHUB</a>
+				<a href="https://github.com/jsguy/mithril.animate/issues">COMMUNITY</a>
+			</span>
+		</div>
+	</header>
+
+	<div id="container" class="cf">
+		<div class="cf box even">
+			<div class="content">
+				<h1>What is Mithril.animate?</h1>
+				<p>
+					A tiny library that allows you to declaratively bind animations to your mithril elements via model
+					properties. They work in all <a href="http://caniuse.com/#feat=transforms2d" target="_blank">modern
+						browsers</a>, and have the ability to fall back to using jQuery.animate (optional). The
+					intention is to allow you to create <a
+						href="http://www.google.com/design/spec/animation/responsive-interaction.html"
+						target="_blank">neat UI animations</a> that react to your model properties, however don't expect
+					to be able to make a floating 3D periodic table, (at least not out of the box).</a>.
+				</p>
+			</div>
+		</div>
+		<div class="cf box odd">
+			<div class="content">
+				<h2><a href="#Getting_started" name="Getting_started">Getting started</a></h2>
+				<p>
+				<ol>
+					<li>Install <a href="http://lhorie.github.io/mithril/installation.html" target="_blank">Mithril</a>
+					</li>
+					<li>Include a copy of <a
+							href="https://raw.githack.com/jsguy/mithril.animate/master/dist/mithril.animate.min.js"
+							target="_blank">mithril.animate.min.js</a></li>
+				</ol>
+				</p>
+				<p>
+					You're now ready to start animating!
+				</p>
+			</div>
+		</div>
+		<div class="cf box even">
+			<div class="content">
+				<h2><a href="#Using_it" name="Using_it">Using it</a></h2>
+
+				<p>
+					To use an animation, you can bind a property to control it:
+				</p>
+
+				<p>
+				<pre><code class="language-javascript">m.e("div", { opacity: o.ani }, "I can fade away");</code></pre>
+				</p>
+				<p>
+					Where "o.ani" is a property on your model - simply toggle between 0 and 1 to fade in and out!
+				</p>
+
+				<p>
+					You can also bind events to animate, for example:
+				</p>
+				<p>
+				<pre><code class="language-javascript">m.e("div", { onclick: m.trigger('opacity', 0), "I also fade away");</code></pre>
+				</p>
+				<p>
+					Where "0" is the value you want opacity to become when you click.
+				</p>
+				<p>
+					<b>Note:</b> the recommended approach is to bind to a property - as this makes it easy to react to
+					the state of your data. For example if the user performs an action to delete an item, it makes sense
+					to fade the opacity of the item to 0.
+				</p>
+
+				<h3><a href="#Trigger_syntax_-_transition_animation"
+						name="Trigger_syntax_-_transition_animation">Trigger syntax - transition animation</a></h3>
+
+				<p>
+					Transition animations can be triggered with a value or property, options and a callback.
+				</p>
+
+				<div data-syntaxify="#triggerSyntaxTransition" data-syntaxify-language="javascript"></div>
+
+				<script id="triggerSyntaxTransition" type="text">
+m.trigger(NAME, [VALUE/PROP], [OPTIONS], [CALLBACK]);
+			</script>
+
+				<p>
+					Where:
+				<ul>
+					<li><b>NAME</b> - the name of the animation</li>
+					<li><b>VALUE/PROP</b> - an optional value or model property you want to pass to the animation being
+						triggered</li>
+					<li><b>OPTIONS</b> - an optional object containing one or more options</li>
+					<li><b>CALLBACK</b> - a function that will be run when the animation is complete</li>
+				</ul>
+				</p>
+
+				<h3><a href="#Trigger_syntax_-_keyframe_animation" name="Trigger_syntax_-_keyframe_animation">Trigger
+						syntax - keyframe animation</a></h3>
+
+				<p>
+					Keyframe animations only take a name and options, as they are much more static.
+				</p>
+
+				<div data-syntaxify="#triggerSyntaxKeyframe" data-syntaxify-language="javascript"></div>
+
+				<script id="triggerSyntaxKeyframe" type="text">
+m.triggerKF(NAME, [OPTIONS]);
+			</script>
+
+				<p>
+					Where:
+				<ul>
+					<li><b>NAME</b> - the name of the animation</li>
+					<li><b>OPTIONS</b> - an optional object containing one or more options</li>
+				</ul>
+				</p>
+
+				<h3><a href="#Property_animations" name="Property_animations">Property animations</a></h3>
+
+				<p>
+					There are bindings included for all <a
+						href="http://www.w3.org/TR/css3-transitions/#animatable-properties" target="_blank">standard
+						animatable properties</a>: backgroundColor, backgroundPosition, borderBottomColor,
+					borderBottomWidth, borderLeftColor, borderLeftWidth, borderRightColor, borderRightWidth,
+					borderSpacing, borderTopColor, borderTopWidth, bottom, clip, color, fontSize, fontWeight, height,
+					left, letterSpacing, lineHeight, marginBottom, marginLeft, marginRight, marginTop, maxHeight,
+					maxWidth, minHeight, minWidth, opacity, outlineColor, outlineWidth, paddingBottom, paddingLeft,
+					paddingRight, paddingTop, right, textIndent, textShadow, top, verticalAlign, visibility, width,
+					wordSpacing, zIndex
+				</p>
+
+				<h3><a href="#CSS3_animations" name="CSS3_animations">CSS3 animations</a></h3>
+				<p>
+					You can also animate using the following CSS3 animation bindings:
+				</p>
+				<p>
+				<table class="reference">
+					<tr>
+						<th>Binding</th>
+						<th>Description</th>
+					</tr>
+					<tr>
+						<td>translate(<i>x, y</i>)</td>
+						<td>Move element x across, y down</td>
+					</tr>
+					<tr>
+						<td>translatex(<i>x</i>)</td>
+						<td>Moving element x across</td>
+					</tr>
+					<tr>
+						<td>translatey(<i>y</i>)</td>
+						<td>Moving element y down</td>
+					</tr>
+					<tr>
+						<td>scale(<i>x, y</i>)</td>
+						<td>Changing the elements width by x and height by y</td>
+					</tr>
+					<tr>
+						<td>scalex(<i>x</i>)</td>
+						<td>Change the elements width by x</td>
+					</tr>
+					<tr>
+						<td>scaley(<i>y</i>)</td>
+						<td>Change the elements width by y</td>
+					</tr>
+					<tr>
+						<td>rotate(<i>angle</i>)</td>
+						<td>Rotate the element by angle ('deg' or 'rad')</td>
+					</tr>
+					<tr>
+						<td>skew(<i>x-angle, y-angle</i>)</td>
+						<td>Skew the element across by x-angle and down by y-angle ('deg' or 'rad')</td>
+					</tr>
+					<tr>
+						<td>skewx(<i>x-angle</i>)</td>
+						<td>Skew the element across by x-angle ('deg' or 'rad')</td>
+					</tr>
+					<tr>
+						<td>skewy(<i>y-angle</i>)</td>
+						<td>Skew the element down by y-angle ('deg' or 'rad')</td>
+					</tr>
+				</table>
+				</p>
+
+				<h3><a href="#Timing_function" name="Timing_function">Timing function</a></h3>
+				<p>
+					You are able to specify a timing function to direct how your animation is run, default is 'ease'
+				</p>
+				<p>
+				<table class="reference">
+					<tr>
+						<th>Function</th>
+						<th>Description</th>
+					</tr>
+					<tr>
+						<td>ease</td>
+						<td>Slow start, then fast, then end slow again (equivalent to cubic-bezier(0.25,0.1,0.25,1))
+						</td>
+					</tr>
+					<tr>
+						<td>linear</td>
+						<td>Same speed from start to end (equivalent to cubic-bezier(0,0,1,1))</td>
+					</tr>
+					<tr>
+						<td>ease-in</td>
+						<td>Slow start (equivalent to cubic-bezier(0.42,0,1,1))</td>
+					</tr>
+					<tr>
+						<td>ease-out</td>
+						<td>Slow end (equivalent to cubic-bezier(0,0,0.58,1))</td>
+					</tr>
+					<tr>
+						<td>ease-in-out</td>
+						<td>Slow start and end (equivalent to cubic-bezier(0.42,0,0.58,1))</td>
+					</tr>
+					<tr>
+						<td>cubic-bezier(<i>n</i>,<i>n</i>,<i>n</i>,<i>n</i>)</td>
+						<td>Define your own values in the cubic-bezier function. Possible values are numeric values from
+							0 to 1</td>
+					</tr>
+				</table>
+				</p>
+
+				<h2><a href="#Custom_animations" name="Custom_animations">Custom animations</a></h2>
+				<p>
+					You can add custom animations that can animate multiple properties on your element all at once.
+				</p>
+
+				<h3><a href="#Binding_syntax" name="Binding_syntax">Binding syntax</a></h3>
+
+				<div data-syntaxify="#bindingSyntax" data-syntaxify-language="javascript"></div>
+
+				<script id="bindingSyntax" type="text">
+m.addAnimation(NAME, FN, [OPTIONS]);
+			</script>
+
+				<p>
+					Where:
+				<ul>
+					<li><b>NAME</b> - the name of your binding as you refer to it in the view (must be unique)</li>
+					<li><b>FN</b> - A function that takes the mithril property that is bound to the animation and
+						returns the properties and values to be animated</li>
+					<li><b>OPTIONS</b> - an optional object containing one or more options.</li>
+				</ul>
+				</p>
+
+				<p>
+					<a href="#optionsRefernce" name="optionsReference"></a>
+				<table class="reference">
+					<tr>
+						<th>Option</th>
+						<th>Description</th>
+					</tr>
+					<tr>
+						<td>property</td>
+						<td>What properties to animate, default is "all"</td>
+					</tr>
+					<tr>
+						<td>timingFunction</td>
+						<td>Which timing function to use - one of the <a href="#Timing_function">listed functions</a>,
+							default is "ease"</td>
+					</tr>
+					<tr>
+						<td>delay</td>
+						<td>If you want a delay before the animation runs, default is "0"</td>
+					</tr>
+					<tr>
+						<td>duration</td>
+						<td>How long the duration of the animation is - default is "400ms", you can specify it in
+							seconds, using the postfix: "s", or in milliseconds, using the postfix: "ms" (default, if no
+							postfix is specified)</td>
+					</tr>
+				</table>
+				</p>
+
+				<p>
+					Here is an example to rotate and fade the opacity in one go, with a default duration of 2000ms and a
+					linear timing function:
+				</p>
+
+				<div data-syntaxify="#customBinding" data-syntaxify-language="javascript"></div>
+
+				<script id="customBinding">
+					m.addAnimation("rotateColor", function (prop) {
+						var value = prop() ? 1 : 0;
+						return {
+							//opacity: 1-value,
+							color: (value) ? '#0d0' : '#000',
+							rotate: (value * -360) + "deg"
+						};
+					}, {
+						duration: 2000,
+						timingFunction: 'linear'
+					});
+				</script>
+
+
+				<h2><a href="#Custom_keyframe_animations" name="Custom_keyframe_animations">Custom keyframe
+						animations</a></h2>
+				<p>
+					You can add custom keyframe animations that can animate multiple properties on your element all at
+					once, in several steps. Keyframe animations are static, and so do not have a function or a proprty.
+				</p>
+
+				<h3><a href="#Binding_keyframe_syntax" name="Binding_keyframe_syntax">Binding keyframe syntax</a></h3>
+
+				<div data-syntaxify="#bindingKeyframeSyntax" data-syntaxify-language="javascript"></div>
+
+				<script id="bindingKeyframeSyntax" type="text">
+m.addKFAnimation(NAME, OBJ, [OPTIONS]);
+			</script>
+
+				<p>
+					Where:
+				<ul>
+					<li><b>NAME</b> - the name of your binding as you refer to it in the view (must be unique)</li>
+					<li><b>OBJ</b> - An object with percentages as keys and values are properties with their respective
+						values to be animated</li>
+					<li><b>OPTIONS</b> - an optional object containing one or more options, see <a
+							href="#optionsReference">table above</a> for details.</li>
+				</ul>
+				</p>
+
+				<p>
+					Here is an example to make a box "floop" around a little:
+				</p>
+
+				<div data-syntaxify="#customKFBinding" data-syntaxify-language="javascript"></div>
+
+				<script id="customKFBinding">
+					m.addKFAnimation("floopy", {
+						'0%': { left: 0, top: 0 },
+						'25%': { left: 100, top: 40, rotate: "720deg" },
+						'50%': { left: 200, top: 300, rotatey: "180deg" },
+						'75%': { left: 300, top: 75, scale: 6, rotatex: "180deg" },
+						'100%': { left: 0, top: 0 }
+					}, {
+						duration: 2000
+					});
+				</script>
+
+			</div>
+		</div>
+		<div class="cf box odd">
+			<div class="content">
+				<h2><a href="#Examples" name="Examples">Examples</a></h2>
+
+				<h3><a href="#Using_a_binding" name="Using_a_binding">Using a binding</a></h3>
+
+				<p>
+					Here we will try our new "rotateColor" binding - click on the box again to see the animation in
+					reverse - this is a nice example of why using a property is a good idea.
+				</p>
+
+				<p>
+				<div id="app1"></div>
+				<script id="example1Code">
+					var app1 = {
+						model: function () {
+							this.myProperty = m.p(0);
+						},
+						controller: function () {
+							this.model = new app1.model();
+						},
+						view: function (c) {
+							var o = c.model;
+							return m.e("div.rBox", { toggle: o.myProperty, rotateColor: o.myProperty }, "Click me!");
+						}
+					};
+					//initialize
+					m.module(document.getElementById('app1'), app1);
+				</script>
+				</p>
+
+				<p>
+				<div data-syntaxify="#example1Code" data-syntaxify-language="javascript"></div>
+				</p>
+
+
+				<h3><a href="#Using_a_keyframe_binding" name="Using_a_keyframe_binding">Using a keyframe binding</a>
+				</h3>
+
+				<p>
+					Here we will create a custom keyframe binding - this example <a href="css/swingacat.css"
+						target="_blank">uses a little CSS</a> as well.
+					<br />
+					<br />
+					Click the cat.
+					<br />
+					Go on, you know you want to...
+				</p>
+
+				<p>
+				<div id="app2"></div>
+				<script id="example2Code">
+					//	Just enough room to...
+					m.addKFAnimation("swingACat", {
+						'0%': { rotatex: "0", rotatey: "0" },
+						'100%': { rotatex: "360deg", rotatey: "360deg" }
+					});
+
+					var app2 = {
+						controller: function () { },
+						view: function (c) {
+							return [
+								m.e("div.catBox", {
+									onclick: m.triggerKF('swingACat', { duration: 5000 })
+								}, [
+									m.e("div.catBoxFace1"), m.e("div.catBoxFace2")
+								])
+							];
+						}
+					};
+
+					//initialize
+					m.module(document.getElementById('app2'), app2);
+				</script>
+				</p>
+
+				<p>
+				<div data-syntaxify="#example2Code" data-syntaxify-language="javascript"></div>
+				</p>
+
+
+
+				<h3><a href="#Extended_examples" name="Extended_examples">Extended examples</a></h3>
+
+				<p>
+					Hover over each box to see the animation in action
+				</p>
+
+				<div id="testapp"></div>
+
+				<h2><a href="#Source" name="Source">Source</a></h2>
+				<a href="https://raw.githack.com/jsguy/mithril.animate/master/examples/all.example.js"
+					target="_blank">Click here for the source for these examples</a>
+			</div>
+		</div>
+
+		<div class="cf box even">
+			<div class="content">
+				<h2><a href="#FAQ" name="FAQ">FAQ</a></h2>
+
+				<div class="faqItem">
+					<h3>Browser support</h3>
+					<p>
+						The animations work in all <a href="http://caniuse.com/#feat=transforms2d"
+							target="_blank">modern browsers</a>.
+						Mithril.animate degrades older browsers by not applying transforms (rotate, scale, etc) while
+						still applying standard CSS (opacity, margin, etc) without any animation.
+					</p>
+					<p class="smallNote">
+						Note, if you need to support older browsers, you can add <a href="http://jquery.com">jQuery</a>
+						and we will use jquery.animate where possible, ie: opacity, margin, padding, etc...
+					</p>
+				</div>
+			</div>
+		</div>
+
+		<script>
+			//initialize
+			m.module(document.getElementById('testapp'), allExample);
+		</script>
+	</div>
+	<footer>
+		<div id="footerContainer">
+			Copyright &copy; 2014 <a href="http://jsguy.com">jsguy</a>
+		</div>
+	</footer>
+
+	<!-- Just using jQuery for syntax highlighting - not needed for mithril.animate! -->
+	<link rel="stylesheet" type="text/css" href="../libs/jquery.syntaxify/prism.min.css">
+	<script src="../libs/jquery-1.9.1.js"></script>
+	<script type="text/javascript" src="../libs/jquery.syntaxify/prism.min.js"></script>
+	<script src="../libs/jquery.syntaxify/jquery.syntaxify.js"></script>
+
+</body>
+
+</html>

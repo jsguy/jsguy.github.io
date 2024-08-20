@@ -1,0 +1,57 @@
+/* Site */
+body { margin: 0; padding: 0; font-family: sans-serif; background-color: #fff; color: #333; }
+header { background-color: #fff; box-shadow: 0 0 30px #000; padding: 0; width: 100%; margin-bottom: 30em; margin-top: -36em; }
+header #logo {background-image: url(../img/ma_logo.png); background-repeat: no-repeat; height: 47px; width: 310px; margin-top: 2em; display: inline-block; }
+
+#promo { height: 30em; background: url(../img/milkyway.jpg) no-repeat; margin-top: 6em; color: #fff; }
+#promoText { padding-top: 224px; font-size: 3em; text-align: center; }
+#promoText span { height: 1em; display: inline-block; opacity: 0; -webkit-transform: scale(15); transform: scale(15);  }
+
+#headerContainer { margin: 0 auto; width: 960px; height: 6em; }
+/*#container { margin: 0 0 0 8em; padding: 0 1em; width: 992px; }*/
+#container { margin: 0; padding: 0 }
+#nav { float: right; line-height: 6em; }
+#nav a { color: #777; text-decoration: none; margin-left: 1em; }
+#nav a:hover { text-decoration: underline; color: #333; }
+
+.box  { margin: 0; padding: 0 0 2em 0 }
+.box .content { width: 960px; margin: 0 auto;}
+.box.even  { background-color: #f6f6f6; border-bottom: 1px solid #ccc; border-top: 1px solid #ccc; }
+.box.odd  { background-color: #fff }
+
+.rBox { display: inline-block; padding: 0.5em 1em; border: 1px solid #ccc; -webkit-touch-callout: none; -webkit-user-select: none; -khtml-user-select: none; -moz-user-select: none; -ms-user-select: none; user-select: none; }
+.abs { position: absolute; }
+.rel { position: relative; }
+
+footer { padding: 2em 0 0 0; width: 100%; background: #333; color: #fff;}
+footer a { text-decoration: underline; color: #fff; }
+#footerContainer { margin: 0 auto; width: 960px; height: 6em; font-size: 0.8em; }
+
+.cf:before, .cf:after {content: " "; display: table; }
+.cf:after {clear: both; }
+.cf { *zoom: 1 }
+
+.smallNote { font-size: 0.8em; color: #777; }
+.reference { border: 1px solid #ccc; border-radius: 4px }
+.reference td,
+.reference th { padding: 0.4em 0.8em }
+.reference td { background-color: #f3f3f3; }
+.reference th { text-align: left; background-color: #eaeaea; }
+
+/* Examples */
+
+.eBox { width: 2em; height: 2em; background-color: #7b7; border: 1px solid #70bb70; margin-top: 1em;}
+.eBox.alt1 { background-color: #cfc; border: 1px solid #c0ffc0; opacity: 0; }
+.eBox.abs { top: 72px; position: absolute; }
+
+.eBox.icon { position: absolute; background-color: inherit; border: none; background-image: url(../img/icons.png); background-repeat: no-repeat; background-position: 0 -32px;  }
+.eBox.icon.alt1 { background-position: 0 0;  }
+.exampleBox:before, .exampleBox:after {content: " "; display: table; }
+.exampleBox:after {clear: both; }
+.exampleBox { *zoom: 1; min-height: 7em; position: relative; border: 2px solid #eee; background-color: #fafafa; border-radius: 3px; float: left; margin: 0 0 1em 1em; min-height: 7em; padding: 1em; position: relative; width: 8em; }
+h1 { margin-top: 1em; }
+h2 { font-size: 1.2em; clear: both; margin-top: 2em;}
+h3 { color: #777; font-size: 1.1em}
+h1 a, h2 a, h3 a { text-decoration: none; color: inherit; }
+.exampleBox h3 { font-size: 1em; margin-top: 0 }
+.exampleBox a { font-size: 0.7em }
